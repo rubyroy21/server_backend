@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 5000; // Default port if not defined
 const mongoURI = process.env.MONGO_URI;
 
 // Middleware
@@ -19,7 +19,7 @@ if (!mongoURI) {
 }
 
 mongoose
-  .connect(mongoURI)
+  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }) // Ensure these options are correct
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -40,6 +40,7 @@ app.post("/api/submit-response", async (req, res) => {
     await newResponse.save();
     res.status(201).send("Response saved");
   } catch (error) {
+    console.error("Error saving response:", error);
     res.status(500).send("Error saving response");
   }
 });
