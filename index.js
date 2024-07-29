@@ -1,20 +1,27 @@
+require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT;
+const mongoURI = process.env.MONGO_URI;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
 
-// Connect to MongoDB
-mongoose.connect("mongodb://localhost/qna-responses", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+if (!mongoURI) {
+  console.error("MONGO_URI is not defined in .env file");
+  process.exit(1);
+}
+
+mongoose
+  .connect(mongoURI)
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 // Define Mongoose Schema and Model
 const responseSchema = new mongoose.Schema({
