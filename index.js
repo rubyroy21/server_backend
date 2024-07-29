@@ -19,9 +19,12 @@ if (!mongoURI) {
 }
 
 mongoose
-  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }) // Ensure these options are correct
+  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB connected successfully"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    console.error(`Trying to connect with URI: ${mongoURI}`);
+  });
 
 // Define Mongoose Schema and Model
 const responseSchema = new mongoose.Schema({
@@ -45,9 +48,15 @@ app.post("/api/submit-response", async (req, res) => {
   }
 });
 
-app.get("/api/log-click", (req, res) => {
+app.get("/api/log-click", async (req, res) => {
   console.log("Link was clicked");
-  res.status(200).send("Click logged");
+  try {
+    const responses = await Response.find({});
+    res.status(200).json({ message: "Click logged", responses });
+  } catch (error) {
+    console.error("Error fetching responses:", error);
+    res.status(500).send("Error fetching responses");
+  }
 });
 
 // Start Server
